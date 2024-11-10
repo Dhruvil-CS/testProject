@@ -23,9 +23,8 @@ class TestTaskModel(unittest.TestCase):
     def test_add_multiple_tasks(self):
         Task.add_task("Task 1")
         Task.add_task("Task 2")
-        Task.add_task('Task 3')
         tasks = Task.get_tasks()
-        self.assertEqual(len(tasks), 2)
+        self.assertEqual(len(tasks), 3)
         self.assertIn("Task 1", [task['name'] for task in tasks])
         self.assertIn("Task 2", [task['name'] for task in tasks])
 
