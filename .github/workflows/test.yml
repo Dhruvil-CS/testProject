@@ -41,3 +41,19 @@ jobs:
       with:
         name: test-report
         path: report.xml
+        
+     - name: Send email on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.sendgrid.net
+          server_port: 587
+          username: apikey
+          password: ${{ secrets.SENDGRID_API_KEY }}
+          subject: "❌ CI Test Failure Notification"
+          to: ${{ secrets.SENDGRID_TO_EMAIL }}
+          from: ${{ secrets.SENDGRID_FROM_EMAIL }}
+          content_type: text/plain
+          body: |
+            The test suite failed. Please check the logs for details.
+            Workflow URL: ${{ github.workflow }} - ${{ github.run_id }}
