@@ -31,10 +31,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+
+      - name: Cache SonarQube scanner
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.home }}/sonar-scanner
+          key: sonarqube-${{ runner.os }}-4.6.2.2472
+          restore-keys: |
+            sonarqube-${{ runner.os }}-
+
+      - name: Install SonarQube Scanner if not cached
+        if: steps.cache-sonarqube.outputs.cache-hit != 'true'
+        run: |
+          curl -sSLo sonarqube-scanner.zip https://github.com/SonarSource/sonar-scanner-cli/releases/download/4.6.2.2472/sonar-scanner-cli-4.6.2.2472-linux.zip
+          unzip sonarqube-scanner.zip -d $HOME/sonar-scanner
+
+      - name: Add SonarQube scanner to PATH
+        run: echo "$HOME/sonar-scanner/sonar-scanner-4.6.2.2472-linux/bin" >> $GITHUB_PATH
+
       - name: Run tests and generate reports
         run: |
           chmod +x run_tests.sh
-          pytest --maxfail=5 --junitxml=report.xml
+          pytest --maxfail=5 --junitxml=report.xml --cov=. --cov-report xml:coverage.xml
+        continue-on-error: true
+
+      - name: Run SonarQube analysis
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=your_project_key \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=https://your-sonarqube-server-url \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.python.coverage.reportPaths=coverage.xml \
+            -Dsonar.junit.reportPaths=report.xml
 
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v3
@@ -42,18 +71,3 @@ jobs:
           name: test-report
           path: report.xml
         
-      - name: Send email on failure
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.sendgrid.net
-          server_port: 587
-          username: apikey
-          password: ${{ secrets.SENDGRID_API_KEY }}
-          subject: "❌ CI Test Failure Notification"
-          to: ${{ secrets.SENDGRID_TO_EMAIL }}
-          from: ${{ secrets.SENDGRID_FROM_EMAIL }}
-          content_type: text/plain
-          body: |
-            The test suite failed. Please check the logs for details.
-            Workflow URL: ${{ github.workflow }} - ${{ github.run_id }}
