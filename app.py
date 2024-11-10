@@ -12,7 +12,7 @@ def main():
     while True:
         show_menu()
         choice = input("Choose an option: ")
-        
+        print('just trying')
         if choice == '1':
             name = input("Enter task name: ")
             Task.add_task(name)
