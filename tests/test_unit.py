@@ -9,6 +9,7 @@ class TestTaskModel(unittest.TestCase):
         global DATA_FILE
         DATA_FILE = self.test_data_file
         init_db()
+        print('initialization done successfully')
 
     def tearDown(self):
         if os.path.exists(self.test_data_file):
