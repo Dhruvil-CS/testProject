@@ -31,7 +31,7 @@ jobs:
     - name: Run tests and generate reports
       run: |
         chmod +x run_tests.sh
-        pytest --maxfail=5 --disable-warnings --junitxml=report.xml
+        pytest --maxfail=5 --junitxml=report.xml
 
     - name: Upload test results as artifact
       uses: actions/upload-artifact@v2
