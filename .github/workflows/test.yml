@@ -22,6 +22,9 @@ jobs:
         key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-python-
+    
+    - name: Setup python path
+      run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
     - name: Install dependencies
       run: |
