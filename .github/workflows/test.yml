@@ -34,8 +34,7 @@ jobs:
       - name: Run tests and generate reports
         run: |
           chmod +x run_tests.sh
-          pytest --maxfail=5 --junitxml=report.xml --cov=. --cov-report xml:coverage.xml
-        continue-on-error: true
+          pytest --maxfail=5 --junitxml=report.xml
 
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v3
